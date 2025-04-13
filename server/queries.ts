@@ -33,15 +33,24 @@ export async function getStaffOscarStats(role: string = ''): Promise<StaffOscarS
   }
 
   const sql = `
-    SELECT p.PName as person_name, p.Date_of_Birth as date_of_birth,
-           COUNT(DISTINCT n.Category, n.Iteration) as nominations,
-           SUM(CASE WHEN n.Won = 1 THEN 1 ELSE 0 END) as oscars
-    FROM Person p
-    JOIN Belong b ON p.PName = b.Person_Name AND p.Date_of_Birth = b.Person_Date_of_Birth
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    WHERE 1=1 ${roleCriteria}
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY oscars DESC, nominations DESC
+    SELECT 
+      p.PName as person_name, 
+      p.Date_of_Birth as date_of_birth,
+      b.Role as role,
+      COUNT(DISTINCT CONCAT(n.Category, '-', n.Iteration)) as nominations,
+      SUM(CASE WHEN n.Won = 1 THEN 1 ELSE 0 END) as oscars,
+      GROUP_CONCAT(DISTINCT CASE WHEN n.Won = 1 THEN n.Category ELSE NULL END SEPARATOR ', ') as won_categories
+    FROM 
+      Person p
+      JOIN Belong b ON p.PName = b.Person_Name AND p.Date_of_Birth = b.Person_Date_of_Birth
+      JOIN Nomination n ON b.Movie_Name = n.Movie_Name AND b.Movie_Release_Date = n.Movie_Release_Date 
+                       AND p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+    WHERE 
+      1=1 ${roleCriteria}
+    GROUP BY 
+      p.PName, p.Date_of_Birth, b.Role
+    ORDER BY 
+      oscars DESC, nominations DESC
     LIMIT 100
   `;
 
