@@ -47,7 +47,6 @@ export default function DreamTeamPage() {
   };
   
   return (
-    <Layout title="Dream Team">
       <div className="space-y-6">
         <Card>
           <CardHeader className="text-center">
@@ -114,6 +113,5 @@ export default function DreamTeamPage() {
           </CardFooter>
         </Card>
       </div>
-    </Layout>
   );
 }

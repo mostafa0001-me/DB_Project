@@ -93,7 +93,6 @@ export default function NominationsPage() {
   };
 
   return (
-    <Layout title="My Nominations">
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-medium">Your Nominations</h2>
@@ -139,6 +138,5 @@ export default function NominationsPage() {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-    </Layout>
   );
 }

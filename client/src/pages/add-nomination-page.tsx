@@ -160,7 +160,6 @@ export default function AddNominationPage() {
   };
 
   return (
-    <Layout title="Add Nomination">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-medium mb-6">Add New Nomination</h2>
@@ -347,6 +346,5 @@ export default function AddNominationPage() {
           </Form>
         </div>
       </div>
-    </Layout>
   );
 }

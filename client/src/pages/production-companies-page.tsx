@@ -15,7 +15,6 @@ export default function ProductionCompaniesPage() {
   ];
   
   return (
-    <Layout title="Top Production Companies">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -102,6 +101,5 @@ export default function ProductionCompaniesPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

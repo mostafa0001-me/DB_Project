@@ -53,7 +53,6 @@ export default function StaffByCountryPage() {
   };
 
   return (
-    <Layout title="Staff by Country">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -151,6 +150,5 @@ export default function StaffByCountryPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

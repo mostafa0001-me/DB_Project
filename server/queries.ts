@@ -236,10 +236,10 @@ export async function getDreamTeam(): Promise<DreamTeamMember[]> {
 // Show the top 5 production companies by number of won Oscars
 export async function getTopProductionCompanies(): Promise<ProductionCompany[]> {
   const sql = `
-    SELECT m.PD_company as pd_company, COUNT(*) as oscars
+    SELECT COALESCE(m.PD_company, 'Unknown') as pd_company, COUNT(*) as oscars
     FROM Movie m
     JOIN Nomination n ON m.Name = n.Movie_Name AND m.Release_Date = n.Movie_Release_Date
-    WHERE n.Won = 1
+    WHERE n.Won = 1 AND m.PD_company IS NOT NULL AND m.PD_company != ''
     GROUP BY m.PD_company
     ORDER BY oscars DESC
     LIMIT 5
@@ -257,13 +257,13 @@ export async function getTopProductionCompanies(): Promise<ProductionCompany[]> 
 // List all non-English speaking movies that ever won an oscar, with the year
 export async function getNonEnglishMovies(): Promise<NonEnglishMovie[]> {
   const sql = `
-    SELECT 
+    SELECT DISTINCT
       m.Name as movie_name, 
       m.Release_Date as release_date, 
       m.Language as language, 
       n.Iteration as year,
       n.Category as category,
-      m.PD_company as pd_company,
+      COALESCE(m.PD_company, 'Unknown') as pd_company,
       p.PName as director
     FROM 
       Movie m
@@ -271,7 +271,7 @@ export async function getNonEnglishMovies(): Promise<NonEnglishMovie[]> {
       LEFT JOIN Belong b ON m.Name = b.Movie_Name AND m.Release_Date = b.Movie_Release_Date AND b.Role = 'Director'
       LEFT JOIN Person p ON b.Person_Name = p.PName AND b.Person_Date_of_Birth = p.Date_of_Birth
     WHERE 
-      m.Language != 'English' AND n.Won = 1
+      m.Language != 'English' AND m.Language IS NOT NULL AND m.Language != '' AND n.Won = 1
     ORDER BY 
       n.Iteration DESC
   `;

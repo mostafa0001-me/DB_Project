@@ -160,20 +160,30 @@ export class DatabaseStorage implements IStorage {
       person_name, person_date_of_birth 
     } = nomination;
     
-    // Format dates for MySQL - convert ISO dates to YYYY-MM-DD format
-    const formattedMovieReleaseDate = movie_release_date ? 
-      new Date(movie_release_date).toISOString().split('T')[0] : null;
+    // More explicit date formatting to ensure consistency across environments
+    let formattedMovieReleaseDate = null;
+    if (movie_release_date) {
+      const date = new Date(movie_release_date);
+      // Format as YYYY-MM-DD manually to avoid timezone issues
+      formattedMovieReleaseDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
     
     const formattedPersonDateOfBirth = person_date_of_birth ? 
-      new Date(person_date_of_birth).toISOString().split('T')[0] : null;
+    let formattedPersonDateOfBirth = null;
+    if (person_date_of_birth) {
+      const date = new Date(person_date_of_birth);
+      formattedPersonDateOfBirth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
     
-    console.log('Adding nomination with formatted dates:', {
+    console.log('Adding nomination with explicit formatting:', {
+      movie_name,
       original_movie_date: movie_release_date,
       formatted_movie_date: formattedMovieReleaseDate,
+      person_name,
       original_person_date: person_date_of_birth,
       formatted_person_date: formattedPersonDateOfBirth
     });
-
+  
     const sql = `
       INSERT INTO USR_Nomination 
       (Category, Iteration, User_Username, Movie_Name, Movie_Release_Date, Person_Name, Person_Date_of_Birth) 
@@ -181,6 +191,20 @@ export class DatabaseStorage implements IStorage {
     `;
     
     try {
+      // Before inserting, check if movie exists
+      const checkMovieExists = await query(
+        'SELECT * FROM Movie WHERE Name = ? AND Release_Date = ?',
+        [movie_name, formattedMovieReleaseDate]
+      );
+      
+      if (Array.isArray(checkMovieExists) && checkMovieExists.length === 0) {
+        console.error('Movie not found in database:', {
+          movie_name,
+          formattedMovieReleaseDate
+        });
+        throw new Error(`Movie "${movie_name}" (${formattedMovieReleaseDate}) not found in database`);
+      }
+      
       await query(sql, [
         category, iteration, user_username, 
         movie_name, formattedMovieReleaseDate, 
@@ -203,15 +227,35 @@ export class DatabaseStorage implements IStorage {
     personName: string, 
     personDateOfBirth: string
   ): Promise<boolean> {
-    // Format dates for MySQL - convert ISO dates to YYYY-MM-DD format
-    const formattedMovieReleaseDate = movieReleaseDate ? 
-      new Date(movieReleaseDate).toISOString().split('T')[0] : null;
+    // Manual date formatting to ensure consistency across environments
+    let formattedMovieReleaseDate = null;
+    if (movieReleaseDate) {
+      const date = new Date(movieReleaseDate);
+      // Format as YYYY-MM-DD manually to avoid timezone issues
+      formattedMovieReleaseDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
     
-    const formattedPersonDateOfBirth = personDateOfBirth ? 
-      new Date(personDateOfBirth).toISOString().split('T')[0] : null;
+    let formattedPersonDateOfBirth = null;
+    if (personDateOfBirth) {
+      const date = new Date(personDateOfBirth);
+      formattedPersonDateOfBirth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
     
-    const sql = `
-      DELETE FROM USR_Nomination 
+    console.log('Deleting nomination with explicit formatting:', {
+      username,
+      category,
+      iteration,
+      movieName,
+      original_movie_date: movieReleaseDate,
+      formatted_movie_date: formattedMovieReleaseDate,
+      personName,
+      original_person_date: personDateOfBirth,
+      formatted_person_date: formattedPersonDateOfBirth
+    });
+  
+    // Before deleting, check if the nomination exists
+    const checkSql = `
+      SELECT * FROM USR_Nomination 
       WHERE User_Username = ? 
       AND Category = ? 
       AND Iteration = ? 
@@ -222,6 +266,38 @@ export class DatabaseStorage implements IStorage {
     `;
     
     try {
+      const checkResult: any = await query(checkSql, [
+        username, category, iteration, 
+        movieName, formattedMovieReleaseDate, 
+        personName, formattedPersonDateOfBirth
+      ]);
+      
+      console.log('Check nomination exists result:', checkResult);
+      
+      if (Array.isArray(checkResult) && checkResult.length === 0) {
+        console.error('Nomination not found for deletion:', {
+          username, 
+          category, 
+          iteration,
+          movieName, 
+          formattedMovieReleaseDate,
+          personName, 
+          formattedPersonDateOfBirth
+        });
+        return false;
+      }
+      
+      const sql = `
+        DELETE FROM USR_Nomination 
+        WHERE User_Username = ? 
+        AND Category = ? 
+        AND Iteration = ? 
+        AND Movie_Name = ? 
+        AND Movie_Release_Date = ? 
+        AND Person_Name = ? 
+        AND Person_Date_of_Birth = ?
+      `;
+      
       const result: any = await query(sql, [
         username, category, iteration, 
         movieName, formattedMovieReleaseDate, 

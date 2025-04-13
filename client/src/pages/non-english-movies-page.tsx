@@ -32,7 +32,6 @@ export default function NonEnglishMoviesPage() {
   })).sort((a, b) => b.count - a.count);
   
   return (
-    <Layout title="Non-English Oscar Winners">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -107,6 +106,5 @@ export default function NonEnglishMoviesPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

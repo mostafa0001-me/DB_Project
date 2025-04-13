@@ -35,7 +35,6 @@ export default function StaffOscarsPage() {
   ) || [];
   
   return (
-    <Layout title="Staff Oscar Statistics">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -64,12 +63,12 @@ export default function StaffOscarsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All roles</SelectItem>
-                    <SelectItem value="Director">Directors</SelectItem>
-                    <SelectItem value="Actor">Actors</SelectItem>
-                    <SelectItem value="Actress">Actresses</SelectItem>
-                    <SelectItem value="Producer">Producers</SelectItem>
-                    <SelectItem value="Singer">Singers</SelectItem>
-                    <SelectItem value="Composer">Composers</SelectItem>
+                    <SelectItem value="Director">Director</SelectItem>
+                    <SelectItem value="Cast">Cast</SelectItem>
+                    <SelectItem value="Writer">Writer</SelectItem>
+                    <SelectItem value="Producer">Producer</SelectItem>
+                    <SelectItem value="Music">Music</SelectItem>
+                    <SelectItem value="Editor">Editor</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -100,6 +99,5 @@ export default function StaffOscarsPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

@@ -15,7 +15,6 @@ export default function BirthCountriesPage() {
   ];
   
   return (
-    <Layout title="Top Birth Countries">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -80,6 +79,5 @@ export default function BirthCountriesPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }

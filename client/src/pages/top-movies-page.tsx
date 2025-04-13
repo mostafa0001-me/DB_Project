@@ -32,7 +32,6 @@ export default function TopMoviesPage() {
   }) || [];
   
   return (
-    <Layout title="Top Nominated Movies">
       <div className="space-y-6">
         <Card>
           <CardHeader>
@@ -92,6 +91,5 @@ export default function TopMoviesPage() {
           </CardContent>
         </Card>
       </div>
-    </Layout>
   );
 }
