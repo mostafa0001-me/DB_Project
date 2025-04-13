@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
+import Layout from "@/components/Layout";
 
 export function ProtectedRoute({
   path,
@@ -44,7 +45,9 @@ export function ProtectedRoute({
   console.log(`User authenticated, rendering component for ${path}`);
   return (
     <Route path={path}>
-      <Component />
+      <Layout title={path === "/" ? "Dashboard" : path.substring(1).split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")}>
+        <Component />
+      </Layout>
     </Route>
   );
 }
