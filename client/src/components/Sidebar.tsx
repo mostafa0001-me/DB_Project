@@ -11,7 +11,8 @@ import {
   Stars,
   Building2,
   Languages,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -53,43 +54,82 @@ export default function Sidebar({ className = '', onClose }: SidebarProps) {
     return username.slice(0, 2).toUpperCase();
   };
 
+  // Group menu items for better organization
+  const dashboardItems = menuItems.slice(0, 3);
+  const statisticsItems = menuItems.slice(3);
+
   return (
-    <div className={className}>
-      <div className="flex items-center justify-center h-16 border-b border-gray-200">
+    <div className={`flex flex-col h-full ${className}`}>
+      <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
         <h1 className="text-xl font-bold text-primary">Oscar Nominations DB</h1>
+        {onClose && (
+          <button 
+            onClick={onClose}
+            className="md:hidden text-gray-500 hover:text-gray-700"
+            aria-label="Close sidebar"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
       
-      <div className="flex-1 overflow-y-auto pt-2">
-        <nav className="mt-4">
-          {menuItems.map((item, index) => {
+      <div className="flex-1 overflow-y-auto py-2">
+        <nav className="mt-2">
+          <div className="px-4 mb-1 text-gray-500 text-xs font-medium uppercase tracking-wider">
+            Main
+          </div>
+          
+          {dashboardItems.map((item) => {
             const isActive = location === item.path;
             
-            // Render divider for statistics section
-            const showDivider = index === 3;
+            return (
+              <Link 
+                key={item.path}
+                href={item.path}
+                onClick={onClose}
+              >
+                <div 
+                  className={`
+                    px-4 py-2 mx-2 mb-1 cursor-pointer flex items-center rounded-md transition-colors
+                    ${isActive 
+                      ? 'text-primary-800 bg-primary-100 bg-opacity-80' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                    }
+                  `}
+                >
+                  {item.icon}
+                  <span className="ml-3 text-sm">{item.label}</span>
+                </div>
+              </Link>
+            );
+          })}
+          
+          <div className="px-4 mt-6 mb-1 text-gray-500 text-xs font-medium uppercase tracking-wider">
+            Statistics
+          </div>
+          
+          {statisticsItems.map((item) => {
+            const isActive = location === item.path;
             
             return (
-              <div key={item.path}>
-                {showDivider && (
-                  <div className="px-4 mt-2 text-gray-400 text-sm">STATISTICS</div>
-                )}
-                <Link 
-                  href={item.path}
-                  onClick={onClose}
+              <Link 
+                key={item.path}
+                href={item.path}
+                onClick={onClose}
+              >
+                <div 
+                  className={`
+                    px-4 py-2 mx-2 mb-1 cursor-pointer flex items-center rounded-md transition-colors
+                    ${isActive 
+                      ? 'text-primary-800 bg-primary-100 bg-opacity-80' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                    }
+                  `}
                 >
-                  <div 
-                    className={`
-                      px-4 py-3 cursor-pointer flex items-center
-                      ${isActive 
-                        ? 'text-primary-800 bg-primary-100 bg-opacity-10 border-l-4 border-primary' 
-                        : 'hover:bg-gray-100'
-                      }
-                    `}
-                  >
-                    {item.icon}
-                    <span className="ml-2">{item.label}</span>
-                  </div>
-                </Link>
-              </div>
+                  {item.icon}
+                  <span className="ml-3 text-sm">{item.label}</span>
+                </div>
+              </Link>
             );
           })}
         </nav>
@@ -105,6 +145,7 @@ export default function Sidebar({ className = '', onClose }: SidebarProps) {
             <button 
               className="ml-auto text-gray-400 hover:text-gray-600"
               onClick={handleLogout}
+              aria-label="Logout"
             >
               <LogOut className="w-4 h-4" />
             </button>
