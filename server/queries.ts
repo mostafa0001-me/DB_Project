@@ -110,93 +110,181 @@ export async function getStaffByCountry(country: string): Promise<StaffByCountry
 // Dream Team - Extract the living cast members that can create the best movie ever
 export async function getDreamTeam(): Promise<DreamTeamMember[]> {
   const sql = `
-    (SELECT 
+    -- Director with most Oscar wins
+    (SELECT
       p.PName as person_name,
       p.Date_of_Birth as date_of_birth,
       'Director' as role,
-      COUNT(DISTINCT n.Category, n.Iteration) as oscars,
+      COUNT(*) as oscars,
       p.Death_Date as death_date,
       GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ') as notable_works
-    FROM Person p
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
-    WHERE p.Death_Date IS NULL
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
       AND n.Won = 1
-      AND n.Category LIKE '%Director%'
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY oscars DESC
+      AND (n.Category LIKE '%Director%' OR n.Category LIKE '%Directing%')
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      COUNT(*) DESC
     LIMIT 1)
-
+    
     UNION ALL
-
-    (SELECT 
-      p.PName, p.Date_of_Birth, 'Actor',
-      COUNT(DISTINCT n.Category, n.Iteration),
+    
+    -- Best Leading Actor
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Leading Actor' as role,
+      COUNT(*) as oscars,
       p.Death_Date,
       GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
-    FROM Person p
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
-    WHERE p.Death_Date IS NULL
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
       AND n.Won = 1
       AND (n.Category LIKE '%Actor in a Leading Role%' OR n.Category = 'Best Actor')
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY COUNT(DISTINCT n.Category, n.Iteration) DESC
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
     LIMIT 1)
-
+    
     UNION ALL
-
-    (SELECT 
-      p.PName, p.Date_of_Birth, 'Actress',
-      COUNT(DISTINCT n.Category, n.Iteration),
+    
+    -- Best Leading Actress
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Leading Actress' as role,
+      COUNT(*) as oscars,
       p.Death_Date,
       GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
-    FROM Person p
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
-    WHERE p.Death_Date IS NULL
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
       AND n.Won = 1
       AND (n.Category LIKE '%Actress in a Leading Role%' OR n.Category = 'Best Actress')
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY COUNT(DISTINCT n.Category, n.Iteration) DESC
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
     LIMIT 1)
-
+    
     UNION ALL
-
-    (SELECT 
-      p.PName, p.Date_of_Birth, 'Composer',
-      COUNT(DISTINCT n.Category, n.Iteration),
+    
+    -- Best Supporting Actor
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Supporting Actor' as role,
+      COUNT(*) as oscars,
       p.Death_Date,
       GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
-    FROM Person p
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
-    WHERE p.Death_Date IS NULL
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
       AND n.Won = 1
-      AND (n.Category LIKE '%Music%' OR n.Category LIKE '%Song%' OR n.Category LIKE '%Score%')
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY COUNT(DISTINCT n.Category, n.Iteration) DESC
+      AND n.Category LIKE '%Actor in a Supporting Role%'
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
     LIMIT 1)
-
+    
     UNION ALL
-
-    (SELECT 
-      p.PName, p.Date_of_Birth, 'Producer',
-      COUNT(DISTINCT n.Category, n.Iteration),
+    
+    -- Best Supporting Actress
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Supporting Actress' as role,
+      COUNT(*) as oscars,
       p.Death_Date,
       GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
-    FROM Person p
-    JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
-    JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
-    WHERE p.Death_Date IS NULL
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
       AND n.Won = 1
-      AND (n.Category LIKE '%Producer%' OR n.Category = 'Best Picture')
-    GROUP BY p.PName, p.Date_of_Birth
-    ORDER BY COUNT(DISTINCT n.Category, n.Iteration) DESC
+      AND n.Category LIKE '%Actress in a Supporting Role%'
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
     LIMIT 1)
-
-    ORDER BY oscars DESC
-  `;
+    
+    UNION ALL
+    
+    -- Best Producer
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Producer' as role,
+      COUNT(*) as oscars,
+      p.Death_Date,
+      GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
+      AND n.Won = 1
+      AND (
+        n.Category = 'Best Picture' 
+        OR n.Category LIKE '%Production%' 
+        OR n.Category = 'Outstanding Production'
+        OR n.Category = 'Outstanding Motion Picture'
+      )
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
+    LIMIT 1)
+    
+    UNION ALL
+    
+    -- Best Singer/Composer for movie score
+    (SELECT
+      p.PName, 
+      p.Date_of_Birth, 
+      'Singer' as role,
+      COUNT(*) as oscars,
+      p.Death_Date,
+      GROUP_CONCAT(DISTINCT m.Name ORDER BY n.Iteration DESC SEPARATOR ', ')
+    FROM 
+      Person p
+      JOIN Nomination n ON p.PName = n.Person_Name AND p.Date_of_Birth = n.Person_Date_of_Birth
+      JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
+    WHERE 
+      p.Death_Date IS NULL
+      AND n.Won = 1
+      AND (
+        n.Category LIKE '%Song%' 
+        OR n.Category LIKE '%Music%'
+        OR n.Category LIKE '%Score%'
+      )
+    GROUP BY 
+      p.PName, p.Date_of_Birth
+    ORDER BY 
+      oscars DESC
+    LIMIT 1)
+    `;
 
   try {
     const results = await query(sql) as any[];
@@ -221,12 +309,7 @@ export async function getDreamTeam(): Promise<DreamTeamMember[]> {
     }
 
     // Get the dream team - one top person per role
-    const dreamTeamRoles = ['Director', 'Actor', 'Actress', 'Producer', 'Composer', 'Singer'];
-    const dreamTeam = dreamTeamRoles
-      .map(role => roleMap.get(role))
-      .filter(member => member !== undefined) as DreamTeamMember[];
-
-    return dreamTeam;
+    return Array.from(roleMap.values()) as DreamTeamMember[];
   } catch (error) {
     console.error('Error fetching dream team:', error);
     throw error;
@@ -399,7 +482,17 @@ export async function getDashboardStats() {
         Nomination n
         JOIN Movie m ON n.Movie_Name = m.Name AND n.Movie_Release_Date = m.Release_Date
       WHERE 
-        n.Won = 1
+        n.Won = 1 AND (
+        n.Category = 'Best Picture'
+        OR n.Category = 'Best Animated Feature Film'
+        OR n.Category = 'Best International Feature Film'
+        OR n.Category = 'Best Foreign Language Film'
+        OR n.Category = 'Best Documentary Feature Film'
+        OR n.Category LIKE '%Picture%'
+        OR n.Category LIKE '%Film%'
+        OR n.Category LIKE '%Motion Picture%'
+        OR n.Category LIKE '%Production%'
+      )
       ORDER BY 
         n.Iteration DESC
       LIMIT 3

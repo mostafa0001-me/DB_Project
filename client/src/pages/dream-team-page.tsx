@@ -12,19 +12,21 @@ export default function DreamTeamPage() {
   
   const roleColors: Record<string, string> = {
     'Director': 'bg-blue-100 text-blue-800',
-    'Actor': 'bg-green-100 text-green-800',
-    'Actress': 'bg-purple-100 text-purple-800',
+    'Leading Actor': 'bg-green-100 text-green-800',
+    'Leading Actress': 'bg-purple-100 text-purple-800',
+    'Supporting Actor': 'bg-teal-100 text-teal-800',
+    'Supporting Actress': 'bg-pink-100 text-pink-800',
     'Producer': 'bg-amber-100 text-amber-800',
-    'Composer': 'bg-red-100 text-red-800',
     'Singer': 'bg-indigo-100 text-indigo-800'
   };
   
   const roleIcons: Record<string, JSX.Element> = {
     'Director': <Film className="h-5 w-5" />,
-    'Actor': <Award className="h-5 w-5" />,
-    'Actress': <Award className="h-5 w-5" />,
+    'Leading Actor': <Award className="h-5 w-5" />,
+    'Leading Actress': <Award className="h-5 w-5" />,
+    'Supporting Actor': <Award className="h-5 w-5" />,
+    'Supporting Actress': <Award className="h-5 w-5" />,
     'Producer': <Award className="h-5 w-5" />,
-    'Composer': <Award className="h-5 w-5" />,
     'Singer': <Award className="h-5 w-5" />
   };
   
@@ -55,7 +57,7 @@ export default function DreamTeamPage() {
             </div>
             <CardTitle className="text-2xl font-bold">The Oscar Dream Team</CardTitle>
             <CardDescription>
-              The living cast members with the most Oscar wins who could create the best movie ever
+              The living professionals with the most Oscar wins in their respective categories
             </CardDescription>
           </CardHeader>
           <CardContent>
