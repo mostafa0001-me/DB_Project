@@ -168,7 +168,6 @@ export class DatabaseStorage implements IStorage {
       formattedMovieReleaseDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     }
     
-    const formattedPersonDateOfBirth = person_date_of_birth ? 
     let formattedPersonDateOfBirth = null;
     if (person_date_of_birth) {
       const date = new Date(person_date_of_birth);

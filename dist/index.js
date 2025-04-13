@@ -186,11 +186,21 @@ var DatabaseStorage = class {
       person_name,
       person_date_of_birth
     } = nomination;
-    const formattedMovieReleaseDate = movie_release_date ? new Date(movie_release_date).toISOString().split("T")[0] : null;
-    const formattedPersonDateOfBirth = person_date_of_birth ? new Date(person_date_of_birth).toISOString().split("T")[0] : null;
-    console.log("Adding nomination with formatted dates:", {
+    let formattedMovieReleaseDate = null;
+    if (movie_release_date) {
+      const date = new Date(movie_release_date);
+      formattedMovieReleaseDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+    let formattedPersonDateOfBirth = null;
+    if (person_date_of_birth) {
+      const date = new Date(person_date_of_birth);
+      formattedPersonDateOfBirth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+    console.log("Adding nomination with explicit formatting:", {
+      movie_name,
       original_movie_date: movie_release_date,
       formatted_movie_date: formattedMovieReleaseDate,
+      person_name,
       original_person_date: person_date_of_birth,
       formatted_person_date: formattedPersonDateOfBirth
     });
@@ -200,6 +210,17 @@ var DatabaseStorage = class {
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
     try {
+      const checkMovieExists = await query(
+        "SELECT * FROM Movie WHERE Name = ? AND Release_Date = ?",
+        [movie_name, formattedMovieReleaseDate]
+      );
+      if (Array.isArray(checkMovieExists) && checkMovieExists.length === 0) {
+        console.error("Movie not found in database:", {
+          movie_name,
+          formattedMovieReleaseDate
+        });
+        throw new Error(`Movie "${movie_name}" (${formattedMovieReleaseDate}) not found in database`);
+      }
       await query(sql, [
         category,
         iteration,
@@ -216,10 +237,29 @@ var DatabaseStorage = class {
     }
   }
   async deleteUserNomination(username, category, iteration, movieName, movieReleaseDate, personName, personDateOfBirth) {
-    const formattedMovieReleaseDate = movieReleaseDate ? new Date(movieReleaseDate).toISOString().split("T")[0] : null;
-    const formattedPersonDateOfBirth = personDateOfBirth ? new Date(personDateOfBirth).toISOString().split("T")[0] : null;
-    const sql = `
-      DELETE FROM USR_Nomination 
+    let formattedMovieReleaseDate = null;
+    if (movieReleaseDate) {
+      const date = new Date(movieReleaseDate);
+      formattedMovieReleaseDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+    let formattedPersonDateOfBirth = null;
+    if (personDateOfBirth) {
+      const date = new Date(personDateOfBirth);
+      formattedPersonDateOfBirth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    }
+    console.log("Deleting nomination with explicit formatting:", {
+      username,
+      category,
+      iteration,
+      movieName,
+      original_movie_date: movieReleaseDate,
+      formatted_movie_date: formattedMovieReleaseDate,
+      personName,
+      original_person_date: personDateOfBirth,
+      formatted_person_date: formattedPersonDateOfBirth
+    });
+    const checkSql = `
+      SELECT * FROM USR_Nomination 
       WHERE User_Username = ? 
       AND Category = ? 
       AND Iteration = ? 
@@ -229,6 +269,38 @@ var DatabaseStorage = class {
       AND Person_Date_of_Birth = ?
     `;
     try {
+      const checkResult = await query(checkSql, [
+        username,
+        category,
+        iteration,
+        movieName,
+        formattedMovieReleaseDate,
+        personName,
+        formattedPersonDateOfBirth
+      ]);
+      console.log("Check nomination exists result:", checkResult);
+      if (Array.isArray(checkResult) && checkResult.length === 0) {
+        console.error("Nomination not found for deletion:", {
+          username,
+          category,
+          iteration,
+          movieName,
+          formattedMovieReleaseDate,
+          personName,
+          formattedPersonDateOfBirth
+        });
+        return false;
+      }
+      const sql = `
+        DELETE FROM USR_Nomination 
+        WHERE User_Username = ? 
+        AND Category = ? 
+        AND Iteration = ? 
+        AND Movie_Name = ? 
+        AND Movie_Release_Date = ? 
+        AND Person_Name = ? 
+        AND Person_Date_of_Birth = ?
+      `;
       const result = await query(sql, [
         username,
         category,
@@ -595,10 +667,10 @@ async function getDreamTeam() {
 }
 async function getTopProductionCompanies() {
   const sql = `
-    SELECT m.PD_company as pd_company, COUNT(*) as oscars
+    SELECT COALESCE(m.PD_company, 'Unknown') as pd_company, COUNT(*) as oscars
     FROM Movie m
     JOIN Nomination n ON m.Name = n.Movie_Name AND m.Release_Date = n.Movie_Release_Date
-    WHERE n.Won = 1
+    WHERE n.Won = 1 AND m.PD_company IS NOT NULL AND m.PD_company != ''
     GROUP BY m.PD_company
     ORDER BY oscars DESC
     LIMIT 5
@@ -613,13 +685,13 @@ async function getTopProductionCompanies() {
 }
 async function getNonEnglishMovies() {
   const sql = `
-    SELECT 
+    SELECT DISTINCT
       m.Name as movie_name, 
       m.Release_Date as release_date, 
       m.Language as language, 
       n.Iteration as year,
       n.Category as category,
-      m.PD_company as pd_company,
+      COALESCE(m.PD_company, 'Unknown') as pd_company,
       p.PName as director
     FROM 
       Movie m
@@ -627,7 +699,7 @@ async function getNonEnglishMovies() {
       LEFT JOIN Belong b ON m.Name = b.Movie_Name AND m.Release_Date = b.Movie_Release_Date AND b.Role = 'Director'
       LEFT JOIN Person p ON b.Person_Name = p.PName AND b.Person_Date_of_Birth = p.Date_of_Birth
     WHERE 
-      m.Language != 'English' AND n.Won = 1
+      m.Language != 'English' AND m.Language IS NOT NULL AND m.Language != '' AND n.Won = 1
     ORDER BY 
       n.Iteration DESC
   `;
@@ -724,7 +796,7 @@ async function getDashboardStats() {
     `;
     const topCategories = await query(topCategoriesQuery);
     const recentWinnersQuery = `
-      SELECT 
+      SELECT DISTINCT
         m.Name as movie_name,
         n.Category as category,
         n.Iteration as iteration

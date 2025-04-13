@@ -391,7 +391,7 @@ export async function getDashboardStats() {
 
     // Recent winners
     const recentWinnersQuery = `
-      SELECT 
+      SELECT DISTINCT
         m.Name as movie_name,
         n.Category as category,
         n.Iteration as iteration
