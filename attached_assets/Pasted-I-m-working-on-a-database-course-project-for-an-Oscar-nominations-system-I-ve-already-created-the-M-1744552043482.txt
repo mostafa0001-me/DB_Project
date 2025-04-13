@@ -1,0 +1,31 @@
+I'm working on a database course project for an Oscar nominations system. I've already created the MySQL database hosted on db4free.net with the following credentials:
+DB_HOST=db4free.net
+DB_USER=mmaakh
+DB_PASSWORD=1234567890
+DB_NAME=oscardb
+DB_PORT=3306
+My database schema consists of the following tables:
+
+Movie (Name, Release_Date, Runtime, Language, PD_company)
+Person (PName, Date_of_Birth, Country_of_Birth, Death_Date)
+Nomination (Category, Iteration, Movie_Name, Movie_Release_Date, Person_Name, Person_Date_of_Birth, Won)
+User (Username, Birthdate, Email_Address, Gender, Country)
+USR_Nomination (Category, Iteration, User_Username, Movie_Name, Movie_Release_Date, Person_Name, Person_Date_of_Birth)
+Belong (Movie_Name, Movie_Release_Date, Person_Name, Person_Date_of_Birth, Role)
+
+For my final milestone, I need a client application that connects to this database with these required functionalities:
+
+Register a user
+Add a new user nomination for a staff member for a given movie
+View existing nominations for the user
+View the top nominated movies by system users in each category/year
+Show the total nominations and oscars for a given director, actor, and singer
+Show the top 5 birth countries for actors who won the best actor category
+Show all the nominated staff members born in a given country, with their categories, nomination counts, and oscars in descending order
+Dream Team - Extract the living cast members that can create the best movie ever (director, actors, actresses, producer, singer with most oscars)
+Show the top 5 production companies by number of won Oscars
+List all non-English speaking movies that ever won an oscar, with the year
+
+Please create a complete, ready-to-run web application that implements all these features. You can use any web technology stack you're familiar with (Node.js/Express, React, PHP, ASP.NET, etc.). Include all necessary code files, proper database connection handling, error handling, and a clean, responsive user interface. The application should be well-structured and documented so I can easily deploy it.
+I don't have specific requirements for the technology stack, so please choose one that would be efficient for implementing these features with minimal complexity."
+This prompt allows for more flexibility in the technology choice while still clearly outlining all your requirements and database structure.
